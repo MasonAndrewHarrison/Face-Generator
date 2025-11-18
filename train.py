@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torchvision import datasets, transforms
-import matplotlib as plt
+import matplotlib.pyplot as plt
 from torchvision.datasets import ImageFolder
 
 
@@ -19,6 +19,14 @@ transform = transforms.Compose([
 
 dataset = ImageFolder(root='dataset/', transform=transform)
 
-print(dataset[0])
+image, label = dataset[3453]
+image = image.permute(1, 2, 0)
+image = image * 0.5 + 0.5
+
+print(image.shape)
+plt.imshow(image)
+plt.show()
+
+
 
 
