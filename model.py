@@ -9,11 +9,11 @@ class Discriminator(nn.Module):
             
             self._Depthwise_Separable_Conv2d(3, features, 5, 2, 2),
             self._Depthwise_Separable_Conv2d(features, features*2, 3, 2, 1),
-            nn.Dropout(0.25),
+            nn.Dropout(0.35),
 
             self._Depthwise_Separable_Conv2d(features*2, features*4, 3, 2, 1),
             self._Depthwise_Separable_Conv2d(features*4, features*8, 3, 2, 1),
-            nn.Dropout(0.25),
+            nn.Dropout(0.35),
 
             self._Depthwise_Separable_Conv2d(features*8, features*16, 3, 2, 1),
             

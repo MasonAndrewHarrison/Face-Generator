@@ -13,13 +13,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 z_dim = 100
 image_dim = 64
-batch_size = 64
+batch_size = 256
 num_epochs = 5
-disc_features = 10
-gen_features = 10
+disc_features = 300
+gen_features = 300
 
 disc_model = Discriminator(disc_features).to(device)
 gen_model = Generator(z_dim, gen_features).to(device)
+
 
 if os.path.exists("Generator_Weights.pth"):
     gen_model.load_state_dict(torch.load("Generator_Weights.pth", map_location=device))
@@ -56,10 +57,12 @@ image = image * 0.5 + 0.5
 #plt.imshow(image)
 #plt.show()
 
-opt_disc = optim.Adam(disc_model.parameters(), lr=1e-4, betas=(0.5, 0.999))
+opt_disc = optim.Adam(disc_model.parameters(), lr=2e-5, betas=(0.5, 0.999))
 opt_gen = optim.Adam(gen_model.parameters(), lr=3e-4, betas=(0.5, 0.999))
 
 criterion = nn.BCELoss()
+
+fixed_noise = torch.randn(batch_size, z_dim, 1, 1).to(device)
 
 for epoch in range(num_epochs):
     for i, (real, _) in enumerate(loader):
@@ -90,7 +93,7 @@ for epoch in range(num_epochs):
         gen_loss.backward()
         opt_gen.step()
 
-        if i == 0:
+        if i % 100 == 0:
 
             print("saved model for epoch :", epoch+1)
             torch.save(gen_model.state_dict(), "Generator.pth")
@@ -98,4 +101,12 @@ for epoch in range(num_epochs):
 
         if i % 1 == 0:
             print(gen_loss.item(), disc_loss.item())
+
+        '''if i % 25 == 0:
+            with torch.no_grad():
+                fake = gen_model(fixed_noise).detach().cpu()
+                print(fake.shape) 
+                fake = fake[0, :, :, :].permute(1, 2, 0) * 0.5 + 0.5
+                plt.imshow(fake)
+                plt.show()'''
        
