@@ -19,7 +19,7 @@ transform = transforms.Compose([
 
 dataset = ImageFolder(root='dataset/', transform=transform)
 
-image, label = dataset[3453]
+image, label = dataset[3543]
 image = image.permute(1, 2, 0)
 image = image * 0.5 + 0.5
 
