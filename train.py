@@ -57,12 +57,18 @@ image = image * 0.5 + 0.5
 #plt.imshow(image)
 #plt.show()
 
-opt_disc = optim.Adam(disc_model.parameters(), lr=2e-5, betas=(0.5, 0.999))
+opt_disc = optim.Adam(disc_model.parameters(), lr=3e-5, betas=(0.5, 0.999))
 opt_gen = optim.Adam(gen_model.parameters(), lr=3e-4, betas=(0.5, 0.999))
 
 criterion = nn.BCELoss()
 
 fixed_noise = torch.randn(batch_size, z_dim, 1, 1).to(device)
+
+disc_model.train()
+gen_model.train()
+sample_iter = 0
+
+os.makedirs('samples', exist_ok=True)
 
 for epoch in range(num_epochs):
     for i, (real, _) in enumerate(loader):
@@ -93,7 +99,7 @@ for epoch in range(num_epochs):
         gen_loss.backward()
         opt_gen.step()
 
-        if i % 5 == 0:
+        if i % 25 == 0:
 
             print("saved model for epoch :", epoch+1)
             torch.save(gen_model.state_dict(), "Generator.pth")
@@ -102,11 +108,15 @@ for epoch in range(num_epochs):
         if i % 1 == 0:
             print(gen_loss.item(), disc_loss.item())
 
-        if i == 0:
+        if i % 10 == 0:
+            gen_model.eval()
             with torch.no_grad():
+                sample_iter += 1
+                print(f"saved sample {sample_iter}")
                 fake = gen_model(fixed_noise).detach().cpu()
-                print(fake.shape) 
                 fake = fake[0, :, :, :].permute(1, 2, 0) * 0.5 + 0.5
-                plt.imshow(fake)
-                plt.show()
+                plt.imsave(f"samples/fake_images_epoch_{sample_iter}.png", fake.numpy())
+                #plt.imshow(fake)
+                #plt.show()
+            gen_model.train()
        
