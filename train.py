@@ -15,8 +15,8 @@ z_dim = 100
 image_dim = 64
 batch_size = 256
 num_epochs = 5
-disc_features = 300
-gen_features = 300
+disc_features = 200
+gen_features = 200
 
 disc_model = Discriminator(disc_features).to(device)
 gen_model = Generator(z_dim, gen_features).to(device)
@@ -93,7 +93,7 @@ for epoch in range(num_epochs):
         gen_loss.backward()
         opt_gen.step()
 
-        if i % 100 == 0:
+        if i % 5 == 0:
 
             print("saved model for epoch :", epoch+1)
             torch.save(gen_model.state_dict(), "Generator.pth")
@@ -102,11 +102,11 @@ for epoch in range(num_epochs):
         if i % 1 == 0:
             print(gen_loss.item(), disc_loss.item())
 
-        '''if i % 25 == 0:
+        if i == 0:
             with torch.no_grad():
                 fake = gen_model(fixed_noise).detach().cpu()
                 print(fake.shape) 
                 fake = fake[0, :, :, :].permute(1, 2, 0) * 0.5 + 0.5
                 plt.imshow(fake)
-                plt.show()'''
+                plt.show()
        
