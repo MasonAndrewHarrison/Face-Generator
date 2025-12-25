@@ -2,3 +2,5 @@ img_align_celeba
 *.csv
 dataset
 venv
+__pycache__/
+*.pth

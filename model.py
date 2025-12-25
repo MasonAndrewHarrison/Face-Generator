@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class Discriminator(nn.Module):
-    def __init__(self, img_dim, features):
+    def __init__(self, features):
         super(Discriminator, self).__init__()
         self.disc = nn.Sequential(
             
@@ -53,7 +53,7 @@ class Discriminator(nn.Module):
 
 
 class Generator(nn.Module):
-    def __init__(self, z_dim, img_dim, features):
+    def __init__(self, z_dim,features):
         super(Generator, self).__init__()
         self.gen = nn.Sequential(
 
