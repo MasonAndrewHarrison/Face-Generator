@@ -33,12 +33,12 @@ fake = gen_model(z_noise)
 gradient_penalty = gradient_penalty(critic_model, real, fake, device=device)
 print(f"Gradient Penalty: {gradient_penalty.item():.4f}")
 
-'''
+
 gen_model.eval()
 with torch.no_grad():
     generated_image = gen_model(z_noise).detach().cpu()
     image = generated_image[0, :, :, :].permute(1, 2, 0) * 0.5 + 0.5
     print(image)
     plt.imshow(image)
-    plt.show()'''
+    plt.show()
 
