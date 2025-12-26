@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-z_dim = 101
+z_dim = 100
 gen_features = 32
 
 gen_model = Generator(z_dim, gen_features).to(device)
@@ -19,8 +19,6 @@ else:
     exit()
 
 z_noise = torch.randn(1, z_dim, 1, 1).to(device)
-
-
 
 gen_model.eval()
 with torch.no_grad():
