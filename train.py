@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from torchvision.datasets import ImageFolder 
 from torch.utils.data import DataLoader
 from model import Critic, Generator, initialize_weights
+from utils import gradient_penalty
 import os
 
 
@@ -13,12 +14,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 z_dim = 100
 image_dim = 64
-batch_size = 256
+batch_size = 64
 num_epochs = 5
 disc_features = 32
 gen_features = 32
 critic_iterations = 5
-weight_clip = 0.01
+Lambda_GP = 10
 
 critic = Critic(disc_features).to(device)
 generator = Generator(z_dim, gen_features).to(device)
@@ -57,8 +58,10 @@ image = image * 0.5 + 0.5
 #plt.imshow(image)
 #plt.show()
 
-opt_critic = optim.RMSprop(critic.parameters(), lr=5e-5)
-opt_gen = optim.RMSprop(generator.parameters(), lr=5e-5)
+
+#TODO learn the difference between Adam and RMSprop optimizers
+opt_critic = optim.Adam(critic.parameters(), lr=1e-4, betas=(0.0, 0.9))
+opt_gen = optim.Adam(generator.parameters(), lr=1e-4, betas=(0.0, 0.9))
 
 fixed_noise = torch.randn(batch_size, z_dim, 1, 1).to(device)
 
@@ -81,13 +84,14 @@ for epoch in range(num_epochs):
             critic_real = critic(real_image).reshape(-1)
             critic_fake = critic(fake_image.detach()).reshape(-1) 
 
-            loss_critic = -(torch.mean(critic_real) - torch.mean(critic_fake))
+            gp = gradient_penalty(critic, real_image, fake_image, device=device)
+            loss_critic = (
+                -(torch.mean(critic_real) - torch.mean(critic_fake))
+                + (Lambda_GP * gp)
+            )
             critic.zero_grad()
             loss_critic.backward()
             opt_critic.step()
-
-            for p in critic.parameters():
-                p.data.clamp_(-weight_clip, weight_clip)
 
         ### Train Generator: min -E[critic(gen_fake)] ###
         z_noise = torch.randn(current_batch_size, z_dim, 1, 1).to(device)
@@ -97,8 +101,8 @@ for epoch in range(num_epochs):
         generator.zero_grad()
         loss_gen.backward() 
         opt_gen.step()
-        
-        if i == 25:
+
+        if i % 25 == 0:
 
             print("saved model for epoch :", epoch+1)
             torch.save(generator.state_dict(), "Generator.pth")
