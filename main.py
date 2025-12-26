@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-z_dim = 100
+z_dim = 101
 gen_features = 32
 
 gen_model = Generator(z_dim, gen_features).to(device)
