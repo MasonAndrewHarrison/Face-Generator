@@ -6,18 +6,40 @@ class Critic(nn.Module):
     def __init__(self, features):
         super(Critic, self).__init__()
         self.disc = nn.Sequential(
-            
-            self._Depthwise_Separable_Conv2d(3, features, 5, 2, 2),
-            self._Depthwise_Separable_Conv2d(features, features*2, 3, 2, 1),
-            nn.Dropout(0.35),
 
-            self._Depthwise_Separable_Conv2d(features*2, features*4, 3, 2, 1),
-            self._Depthwise_Separable_Conv2d(features*4, features*8, 3, 2, 1),
-            nn.Dropout(0.35),
-
-            self._Depthwise_Separable_Conv2d(features*8, features*16, 3, 2, 1),
+            self._Conv2d_Block(3, features, 5, 2, 2),
+            self._Conv2d_Block(features, features*2, 3, 2, 1),
+            self._Conv2d_Block(features*2, features*4, 3, 2, 1),
+            self._Conv2d_Block(features*4, features*8, 3, 2, 1),
+            self._Conv2d_Block(features*8, features*16, 3, 2, 1),
+            nn.Conv2d(features*16, 1, 2, 1, 0),
             
-            self._Depthwise_Separable_Conv2d(features*16, 1, 2, 1, 0, activation=False),
+        )
+
+    '''
+    self._Depthwise_Separable_Conv2d(3, features, 5, 2, 2),
+    self._Depthwise_Separable_Conv2d(features, features*2, 3, 2, 1),
+    #nn.Dropout(0.35),
+
+    self._Depthwise_Separable_Conv2d(features*2, features*4, 3, 2, 1),
+    self._Depthwise_Separable_Conv2d(features*4, features*8, 3, 2, 1),
+    #nn.Dropout(0.35),
+
+    self._Depthwise_Separable_Conv2d(features*8, features*16, 3, 2, 1),
+    
+    self._Depthwise_Separable_Conv2d(features*16, 1, 2, 1, 0, activation=False),'''
+
+    def _Conv2d_Block(self, in_channels, out_channels, kernel_size, stride, padding):
+        return nn.Sequential(
+            nn.Conv2d(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                kernel_size=kernel_size,
+                stride=stride,
+                padding=padding,
+                bias=True
+            ),  
+            nn.LeakyReLU(0.2, inplace=True)
         )
     
     def _Depthwise_Separable_Conv2d(self, in_channels, out_channels, kernel_size, stride, padding, activation=True):
@@ -28,7 +50,7 @@ class Critic(nn.Module):
                 kernel_size=kernel_size,
                 stride=stride,
                 padding=padding,
-                bias=not activation,
+                bias=True,
                 groups=in_channels
             ),
             nn.Conv2d(
@@ -37,18 +59,17 @@ class Critic(nn.Module):
                 kernel_size=1,
                 stride=1,
                 padding=0,
-                bias=not activation,               
+                bias=True,
             ),
         ]
 
         if activation:
-            layers.append(nn.BatchNorm2d(out_channels))
             layers.append(nn.LeakyReLU(0.2, inplace=True))
         
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        return self.disc(x).view(-1, 1)
+        return self.disc(x).view(-1)
 
 
 class Generator(nn.Module):
@@ -139,4 +160,12 @@ if __name__ == "__main__":
     new_image = disc(image)
     print(new_image.shape)
 
+
+def initialize_weights(model):
+    for m in model.modules():
+        if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d)):
+            nn.init.normal_(m.weight.data, 0.0, 0.02) 
+        elif isinstance(m, nn.BatchNorm2d):
+            nn.init.normal_(m.weight.data, 1.0, 0.02) 
+            nn.init.constant_(m.bias.data, 0.0)
 

@@ -5,7 +5,7 @@ from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 from torchvision.datasets import ImageFolder 
 from torch.utils.data import DataLoader
-from model import Critic, Generator
+from model import Critic, Generator, initialize_weights
 import os
 
 
@@ -15,8 +15,8 @@ z_dim = 100
 image_dim = 64
 batch_size = 256
 num_epochs = 5
-disc_features = 128
-gen_features = 128
+disc_features = 32
+gen_features = 32
 critic_iterations = 5
 weight_clip = 0.01
 
@@ -29,7 +29,7 @@ if os.path.exists("Generator_Weights.pth"):
     generator.to(device)
 
 else:
-    #initialize_weights(generator)
+    initialize_weights(generator)
     pass
 
 if os.path.exists("Critic_Weights.pth"):
@@ -37,7 +37,7 @@ if os.path.exists("Critic_Weights.pth"):
     critic.to(device)
 
 else:
-    #initialize_weights(critic)
+    initialize_weights(critic)
     pass
 
 transform = transforms.Compose([
@@ -81,30 +81,33 @@ for epoch in range(num_epochs):
             fake_image = generator(z_noise)      
 
             critic_real = critic(real_image).reshape(-1)
-            critic_fake = critic(fake_image).reshape(-1) 
+            critic_fake = critic(fake_image.detach()).reshape(-1) 
+
             loss_critic = -(torch.mean(critic_real) - torch.mean(critic_fake))
             critic.zero_grad()
-            loss_critic.backward(retain_graph=True)
+            loss_critic.backward()
             opt_critic.step()
 
             for p in critic.parameters():
                 p.data.clamp_(-weight_clip, weight_clip)
 
         ### Train Generator: min -E[critic(gen_fake)] ###
+        z_noise = torch.randn(current_batch_size, z_dim, 1, 1).to(device)
+        fake_image = generator(z_noise)    
         output = critic(fake_image).reshape(-1)
         loss_gen = -torch.mean(output)
         generator.zero_grad()
         loss_gen.backward() 
         opt_gen.step()
         
-        if i % 25 == 0:
+        if i == 25:
 
             print("saved model for epoch :", epoch+1)
             torch.save(generator.state_dict(), "Generator.pth")
             torch.save(critic.state_dict(), "Critic.pth")
 
         if i % 1 == 0:
-            print(loss_gen.item(), loss_critic.item())
+            print(f" Generator Loss: {loss_gen.item()}, Critic Loss: {loss_critic.item()}")
 
         if i % 10 == 0:
             generator.eval()
