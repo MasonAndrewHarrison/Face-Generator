@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 
 
-class Discriminator(nn.Module):
+class Critic(nn.Module):
     def __init__(self, features):
-        super(Discriminator, self).__init__()
+        super(Critic, self).__init__()
         self.disc = nn.Sequential(
             
             self._Depthwise_Separable_Conv2d(3, features, 5, 2, 2),
@@ -18,7 +18,6 @@ class Discriminator(nn.Module):
             self._Depthwise_Separable_Conv2d(features*8, features*16, 3, 2, 1),
             
             self._Depthwise_Separable_Conv2d(features*16, 1, 2, 1, 0, activation=False),
-            nn.Sigmoid()
         )
     
     def _Depthwise_Separable_Conv2d(self, in_channels, out_channels, kernel_size, stride, padding, activation=True):
@@ -130,7 +129,7 @@ if __name__ == "__main__":
 
     z_noise = torch.randn(1, 100, 1, 1).to(device)
     gen = Generator(100, 10).to(device)
-    disc = Discriminator(10).to(device)
+    disc = Critic(10).to(device)
     print(z_noise.shape)
     image = gen(z_noise)
 

@@ -5,7 +5,7 @@ from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 from torchvision.datasets import ImageFolder 
 from torch.utils.data import DataLoader
-from model import Discriminator, Generator
+from model import Critic, Generator
 import os
 
 
@@ -20,7 +20,7 @@ gen_features = 128
 critic_iterations = 5
 weight_clip = 0.01
 
-critic = Discriminator(disc_features).to(device)
+critic = Critic(disc_features).to(device)
 generator = Generator(z_dim, gen_features).to(device)
 
 
@@ -32,8 +32,8 @@ else:
     #initialize_weights(generator)
     pass
 
-if os.path.exists("Discriminator_Weights.pth"):
-    critic.load_state_dict(torch.load("Discriminator_Weights.pth", map_location=device))
+if os.path.exists("Critic_Weights.pth"):
+    critic.load_state_dict(torch.load("Critic_Weights.pth", map_location=device))
     critic.to(device)
 
 else:
@@ -97,31 +97,11 @@ for epoch in range(num_epochs):
         loss_gen.backward() 
         opt_gen.step()
         
-        '''#Back Prob for Discriminator
-        fake_prediction = critic(fake_image.detach()).view(-1)
-        real_prediction = critic(real_image).view(-1)
-
-        disc_loss_fake = criterion(fake_prediction, torch.zeros_like(fake_prediction))
-        disc_loss_real = criterion(real_prediction, torch.ones_like(real_prediction))
-
-        disc_loss = (disc_loss_fake + disc_loss_real) / 2
-        critic.zero_grad()
-        disc_loss.backward()
-        opt_disc.step()
-
-
-        #Back Prob for Generator Model  
-        gen_prediction = critic(fake_image).view(-1)
-        gen_loss = criterion(gen_prediction, torch.ones_like(gen_prediction))
-        generator.zero_grad()
-        gen_loss.backward()
-        opt_gen.step()'''
-
         if i % 25 == 0:
 
             print("saved model for epoch :", epoch+1)
             torch.save(generator.state_dict(), "Generator.pth")
-            torch.save(critic.state_dict(), "Discriminator.pth")
+            torch.save(critic.state_dict(), "Critic.pth")
 
         if i % 1 == 0:
             print(loss_gen.item(), loss_critic.item())
