@@ -24,21 +24,19 @@ critic = Critic(disc_features).to(device)
 generator = Generator(z_dim, gen_features).to(device)
 
 
-if os.path.exists("Generator_Weights.pth"):
-    generator.load_state_dict(torch.load("Generator_Weights.pth", map_location=device))
+if os.path.exists("Generator.pth"):
+    generator.load_state_dict(torch.load("Generator.pth", map_location=device))
     generator.to(device)
 
 else:
     initialize_weights(generator)
-    pass
 
-if os.path.exists("Critic_Weights.pth"):
-    critic.load_state_dict(torch.load("Critic_Weights.pth", map_location=device))
+if os.path.exists("Critic.pth"):
+    critic.load_state_dict(torch.load("Critic.pth", map_location=device))
     critic.to(device)
 
 else:
     initialize_weights(critic)
-    pass
 
 transform = transforms.Compose([
     transforms.Resize(64),
