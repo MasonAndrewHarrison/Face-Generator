@@ -30,8 +30,6 @@ z_noise = torch.randn(batch_size, z_dim, 1, 1).to(device)
 real = torch.randn(batch_size, 3, 64, 64).to(device)
 fake = gen_model(z_noise)
 
-
-
 gen_model.eval()
 with torch.no_grad():
     generated_image = gen_model(z_noise).detach().cpu()
