@@ -15,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 z_dim = 100
 image_dim = 64
 batch_size = 64
-num_epochs = 5
+num_epochs = 20
 disc_features = 32
 gen_features = 32
 critic_iterations = 5
@@ -60,8 +60,8 @@ image = image * 0.5 + 0.5
 
 
 #TODO learn the difference between Adam and RMSprop optimizers
-opt_critic = optim.Adam(critic.parameters(), lr=1e-4, betas=(0.0, 0.9))
-opt_gen = optim.Adam(generator.parameters(), lr=1e-4, betas=(0.0, 0.9))
+opt_critic = optim.Adam(critic.parameters(), lr=1e-4, betas=(0.5, 0.999))
+opt_gen = optim.Adam(generator.parameters(), lr=1e-4, betas=(0.5, 0.999))
 
 fixed_noise = torch.randn(batch_size, z_dim, 1, 1).to(device)
 
