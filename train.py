@@ -15,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 z_dim = 100
 image_dim = 64
 batch_size = 64
-num_epochs = 20
+num_epochs = 5
 disc_features = 32
 gen_features = 32
 critic_iterations = 5
@@ -102,7 +102,7 @@ for epoch in range(num_epochs):
         loss_gen.backward() 
         opt_gen.step()
 
-        if i % 25 == 0:
+        if i % 100 == 0:
 
             print("saved model for epoch :", epoch+1)
             torch.save(generator.state_dict(), "Generator.pth")
@@ -111,7 +111,7 @@ for epoch in range(num_epochs):
         if i % 1 == 0:
             print(f" Generator Loss: {loss_gen.item()}, Critic Loss: {loss_critic.item()}")
 
-        if i % 10 == 0:
+        if i % 500 == 0:
             generator.eval()
             with torch.no_grad():
                 sample_iter += 1
