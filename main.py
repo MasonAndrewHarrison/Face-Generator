@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 z_dim = 100
-gen_features = 32
-batch_size = 3
+gen_features = 128
+batch_size = 128
 
 gen_model = Generator(z_dim, gen_features).to(device)
 critic_model = Critic(gen_features).to(device)
@@ -24,11 +24,10 @@ else:
     print("No saved Generator model found. \nMust run train.py first to train the model.")
     exit()
 
-
 z_noise = torch.randn(batch_size, z_dim, 1, 1).to(device)
 
 real = torch.randn(batch_size, 3, 64, 64).to(device)
-fake = gen_model(z_noise)
+fake = gen_model(z_noise) 
                                                       
 with torch.no_grad():
     generated_image = gen_model(z_noise).detach().cpu()

@@ -16,8 +16,8 @@ z_dim = 100
 image_dim = 64
 batch_size = 64
 num_epochs = 5
-disc_features = 32
-gen_features = 32
+disc_features = 128
+gen_features = 128
 critic_iterations = 5
 Lambda_GP = 10
 
@@ -111,7 +111,7 @@ for epoch in range(num_epochs):
         if i % 1 == 0:
             print(f" Generator Loss: {loss_gen.item()}, Critic Loss: {loss_critic.item()}")
 
-        if i % 500 == 0:
+        if i % 200 == 0:
             generator.eval()
             with torch.no_grad():
                 sample_iter += 1
