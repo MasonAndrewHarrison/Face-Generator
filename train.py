@@ -24,7 +24,6 @@ Lambda_GP = 10
 critic = Critic(disc_features).to(device)
 generator = Generator(z_dim, gen_features).to(device)
 
-
 if os.path.exists("Generator.pth"):
     generator.load_state_dict(torch.load("Generator.pth", map_location=device))
     generator.to(device)
@@ -46,18 +45,8 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-
 dataset = ImageFolder(root='dataset/', transform=transform)
 loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-
-image, label = dataset[3543]
-image = image.permute(1, 2, 0)
-image = image * 0.5 + 0.5
-
-#print(image.shape)
-#plt.imshow(image)
-#plt.show()
-
 
 #TODO learn the difference between Adam and RMSprop optimizers
 opt_critic = optim.Adam(critic.parameters(), lr=1e-4, betas=(0.5, 0.999))
