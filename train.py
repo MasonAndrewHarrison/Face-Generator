@@ -1,11 +1,12 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import datasets, transforms
+from torchvision import transforms
 import matplotlib.pyplot as plt
 from torchvision.datasets import ImageFolder 
 from torch.utils.data import DataLoader
 from model import Critic, Generator, initialize_weights
+from utils import gradient_penalty
 import os
 
 
@@ -13,16 +14,15 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 z_dim = 100
 image_dim = 64
-batch_size = 256
+batch_size = 64
 num_epochs = 5
-disc_features = 32
-gen_features = 32
+disc_features = 128
+gen_features = 128
 critic_iterations = 5
-weight_clip = 0.01
+Lambda_GP = 10
 
 critic = Critic(disc_features).to(device)
 generator = Generator(z_dim, gen_features).to(device)
-
 
 if os.path.exists("Generator.pth"):
     generator.load_state_dict(torch.load("Generator.pth", map_location=device))
@@ -45,20 +45,12 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-
 dataset = ImageFolder(root='dataset/', transform=transform)
 loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-image, label = dataset[3543]
-image = image.permute(1, 2, 0)
-image = image * 0.5 + 0.5
-
-#print(image.shape)
-#plt.imshow(image)
-#plt.show()
-
-opt_critic = optim.RMSprop(critic.parameters(), lr=5e-5)
-opt_gen = optim.RMSprop(generator.parameters(), lr=5e-5)
+#TODO learn the difference between Adam and RMSprop optimizers
+opt_critic = optim.Adam(critic.parameters(), lr=1e-4, betas=(0.5, 0.999))
+opt_gen = optim.Adam(generator.parameters(), lr=1e-4, betas=(0.5, 0.999))
 
 fixed_noise = torch.randn(batch_size, z_dim, 1, 1).to(device)
 
@@ -81,13 +73,14 @@ for epoch in range(num_epochs):
             critic_real = critic(real_image).reshape(-1)
             critic_fake = critic(fake_image.detach()).reshape(-1) 
 
-            loss_critic = -(torch.mean(critic_real) - torch.mean(critic_fake))
+            gp = gradient_penalty(critic, real_image, fake_image, device=device)
+            loss_critic = (
+                -(torch.mean(critic_real) - torch.mean(critic_fake))
+                + (Lambda_GP * gp)
+            )
             critic.zero_grad()
             loss_critic.backward()
             opt_critic.step()
-
-            for p in critic.parameters():
-                p.data.clamp_(-weight_clip, weight_clip)
 
         ### Train Generator: min -E[critic(gen_fake)] ###
         z_noise = torch.randn(current_batch_size, z_dim, 1, 1).to(device)
@@ -97,8 +90,8 @@ for epoch in range(num_epochs):
         generator.zero_grad()
         loss_gen.backward() 
         opt_gen.step()
-        
-        if i == 25:
+
+        if i % 100 == 0:
 
             print("saved model for epoch :", epoch+1)
             torch.save(generator.state_dict(), "Generator.pth")
@@ -107,7 +100,7 @@ for epoch in range(num_epochs):
         if i % 1 == 0:
             print(f" Generator Loss: {loss_gen.item()}, Critic Loss: {loss_critic.item()}")
 
-        if i % 10 == 0:
+        if i % 200 == 0:
             generator.eval()
             with torch.no_grad():
                 sample_iter += 1
