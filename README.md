@@ -32,11 +32,11 @@
 
 <table>
   <tr>
-    <td><img src="images/img1.png" alt="img1" width="50"/></td>
-    <td><img src="images/img2.png" alt="img2" width="50"/></td>
-    <td><img src="images/img3.png" alt="img3" width="50"/></td>
-    <td><img src="images/img4.png" alt="img4" width="50"/></td>
-    <td><img src="images/img5.png" alt="img5" width="50"/></td>
-    <td><img src="images/img6.png" alt="img6" width="50"/></td>
+    <td><img src="images/img1.png" alt="img1" width="150"/></td>
+    <td><img src="images/img2.png" alt="img2" width="150"/></td>
+    <td><img src="images/img3.png" alt="img3" width="150"/></td>
+    <td><img src="images/img4.png" alt="img4" width="150"/></td>
+    <td><img src="images/img5.png" alt="img5" width="150"/></td>
+    <td><img src="images/img6.png" alt="img6" width="150"/></td>
   </tr>
 </table>
