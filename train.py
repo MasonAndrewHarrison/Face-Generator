@@ -15,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 z_dim = 100
 image_dim = 64
 batch_size = 64
-num_epochs = 5
+num_epochs = 50
 disc_features = 128
 gen_features = 128
 critic_iterations = 5
@@ -48,7 +48,6 @@ transform = transforms.Compose([
 dataset = ImageFolder(root='dataset/', transform=transform)
 loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-#TODO learn the difference between Adam and RMSprop optimizers
 opt_critic = optim.Adam(critic.parameters(), lr=1e-4, betas=(0.5, 0.999))
 opt_gen = optim.Adam(generator.parameters(), lr=1e-4, betas=(0.5, 0.999))
 
