@@ -30,6 +30,9 @@
 
 ## How It Works
 
-<img src="images/img1.png" alt="img1" width="500"/>
-<img src="images/img2.png" alt="img2" width="500"/>
-<img src="images/img3.png" alt="img3" width="500"/>
+<img src="images/img1.png" alt="img1" width="50"/>
+<img src="images/img2.png" alt="img2" width="50"/>
+<img src="images/img3.png" alt="img3" width="50"/>
+<img src="images/img4.png" alt="img3" width="50"/>
+<img src="images/img5.png" alt="img3" width="50"/>
+<img src="images/img6.png" alt="img3" width="50"/>
