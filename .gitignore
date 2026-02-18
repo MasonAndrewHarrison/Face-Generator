@@ -5,5 +5,5 @@ venv
 __pycache__/
 *.pth
 samples
-*.png
+
 Old_Weights
